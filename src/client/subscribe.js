@@ -14,7 +14,7 @@
     source.onmessage = (event) => {
         if (event.data !== payload) {
             payload = event.data
-            callback(JSON.parse(payload))
+            callback(JSON.parse(payload).payload)
         }
     }
 
