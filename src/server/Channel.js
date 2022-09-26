@@ -8,10 +8,11 @@ module.exports = class Channel {
      * @param {string} message
      */
     constructor(message) {
-        this.message = message
-
         try {
-            this.message = JSON.stringify(this.message)
+            this.message = JSON.stringify({
+                payload: message,
+                timestamp: new Date().valueOf(),
+            })
         } catch {
             throw new Error("Invalid message")
         }
@@ -23,7 +24,7 @@ module.exports = class Channel {
      * @param {string} message
      * @returns {Channel}
      */
-    static broadcast(message) {
+    static publish(message) {
         return new Channel(message)
     }
 
@@ -41,7 +42,7 @@ module.exports = class Channel {
         const connection = await Redis.connection('cache')
 
         await connection.set(`channel:${channel}`, this.message, {
-            EX: 5,
+            EX: 1,
         })
 
         return true
