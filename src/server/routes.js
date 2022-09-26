@@ -28,5 +28,5 @@ const send = (reply, channel) => {
         })
     })
 
-    setTimeout(() => send(reply, channel), 1000)
+    setTimeout(() => send(reply, channel), 100)
 }
