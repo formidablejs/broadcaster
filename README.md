@@ -54,7 +54,7 @@ export tag Home
 			imba.commit!
 
 	def addUser
-		form.post('/user', {
+		form.post('/test', {
 			onSuccess: do form.name = ''
 		})
 
