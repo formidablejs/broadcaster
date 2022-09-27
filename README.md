@@ -31,7 +31,7 @@ import { Request } from '@formidablejs/framework'
 import { Channel } from '@formidablejs/broadcaster'
 
 Route.get '/test', do(request\Request)
-	Channel.broadcast(request.input('name')).on('users')1
+	Channel.publish(request.input('name')).on('users')
 ```
 
 ### Frontend
@@ -41,8 +41,9 @@ import { useForm } from '@formidablejs/view'
 import { subscribe } from '@formidablejs/broadcaster/src/client'
 
 export tag Home
-	prop form = useForm
+	prop form = useForm({
 		name: ''
+	})
 
 	prop name
 
@@ -50,8 +51,12 @@ export tag Home
 		subscribe 'users', do(name)
 			self.name = name
 
+			imba.commit!
+
 	def addUser
-		form.post('/user')
+		form.post('/user', {
+			onSuccess: do form.name = ''
+		})
 
 	def render
 		<self>
@@ -61,8 +66,6 @@ export tag Home
 
 			<button @click=addUser>
 				"Click here"
-
-		imba.commit!
 
 ```
 
