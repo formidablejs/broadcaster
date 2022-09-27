@@ -30,7 +30,7 @@ import { Route } from '@formidablejs/framework'
 import { Request } from '@formidablejs/framework'
 import { Channel } from '@formidablejs/broadcaster'
 
-Route.get '/test', do(request\Request)
+Route.post '/test', do(request\Request)
 	Channel.publish(request.input('name')).on('users')
 ```
 
