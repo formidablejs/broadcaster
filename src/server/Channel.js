@@ -1,5 +1,6 @@
-const { Redis } = require('@formidablejs/framework')
+const { config, Redis } = require('@formidablejs/framework')
 const { isString } = require('@formidablejs/framework/lib/Support/Helpers')
+const crypto = require('crypto')
 
 module.exports = class Channel {
     /**
@@ -12,6 +13,7 @@ module.exports = class Channel {
             this.message = JSON.stringify({
                 payload: message,
                 timestamp: new Date().valueOf(),
+				id: crypto.randomUUID()
             })
         } catch {
             throw new Error("Invalid message")
@@ -39,10 +41,19 @@ module.exports = class Channel {
             throw new TypeError("Channel must be a string")
         }
 
-        const connection = await Redis.connection('cache')
+		/** @type {'PX' | 'EX'} mode */
+		const mode = config('broadcasting.expiration.mode', 'PX')
+
+		/** @type {number} ttl */
+		const ttl = config('broadcasting.expiration.ttl', 300)
+
+		/** @type {string} db */
+		const db = config('broadcasting.expiration.connection', 'default')
+
+		const connection = await Redis.connection(db)
 
         await connection.set(`channel:${channel}`, this.message, {
-            EX: 1,
+            [mode]: ttl,
         })
 
         return true
