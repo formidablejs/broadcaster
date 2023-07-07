@@ -70,6 +70,9 @@ const send = (reply, request, channel) => {
     setTimeout(() => send(reply, request, channel), 100)
 }
 
+/**
+ * Clean up counter.
+ */
 const cleanUp = () => {
 	for (const payload in counter) {
 		const timestamp = JSON.parse(payload).timestamp
