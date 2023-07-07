@@ -71,7 +71,7 @@ const send = (reply, request, channel) => {
 }
 
 /**
- * Clean up counter.
+ * Clean up the counter.
  */
 const cleanUp = () => {
 	for (const payload in counter) {
