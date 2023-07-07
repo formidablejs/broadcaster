@@ -19,6 +19,8 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 					'Connection': 'keep-alive',
 				})
 
+				reply.raw.write('OK\n\n')
+
 				send(reply, request, channel)
 			})
 
