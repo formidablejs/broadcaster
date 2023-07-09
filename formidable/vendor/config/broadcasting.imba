@@ -1,6 +1,26 @@
 export default {
 
 	# --------------------------------------------------------------------------
+	# Prefix
+	# --------------------------------------------------------------------------
+	#
+	# Here you can specify the prefix that will be used to prefix the channel
+	# paths. For example, if you specify a prefix of `_broadcast`, the channel
+	# path will be `/_broadcast/channel`.
+
+	prefix: '_broadcast'
+
+	# --------------------------------------------------------------------------
+	# Default Middleware
+	# --------------------------------------------------------------------------
+	#
+	# This option allows you to define the default middleware that will be
+	# applied to all broadcast streams. By default, the only middleware applied
+	# is the `csrf:allow-get` middleware.
+
+	middleware: ['csrf:allow-get']
+
+	# --------------------------------------------------------------------------
 	# Redis
 	# --------------------------------------------------------------------------
 	#
@@ -21,15 +41,5 @@ export default {
 			ttl: 300
 		}
 	}
-
-	# --------------------------------------------------------------------------
-	# Prefix
-	# --------------------------------------------------------------------------
-	#
-	# Here you can specify the prefix that will be used to prefix the channel
-	# paths. For example, if you specify a prefix of `_broadcast`, the channel
-	# path will be `/_broadcast/channel`.
-
-	prefix: '_broadcast'
 
 }
