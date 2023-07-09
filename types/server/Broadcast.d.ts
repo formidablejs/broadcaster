@@ -1,3 +1,4 @@
+import { IMiddleware } from '@formidablejs/framework/types/Http/Middleware/IMiddleware'
 import ChannelCallback from '../ChannelCallback'
 
 export default class Broadcast {
@@ -24,5 +25,5 @@ export default class Broadcast {
 	/**
 	 * Set the channel middleware.
 	 */
-	middleware(middleware: string | string[]): Broadcast
+	middleware(middleware: string | IMiddleware | Array<string|IMiddleware>): Broadcast
 }
