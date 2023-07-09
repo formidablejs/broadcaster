@@ -16,10 +16,10 @@
 	"types"
   ],
   "peerDependencies": {
-    "@formidablejs/framework": ">=0.20.6"
+    "@formidablejs/framework": ">=0.21.0"
   },
   "devDependencies": {
-    "@formidablejs/framework": "^0.20.6",
+    "@formidablejs/framework": "^0.21.0",
     "@types/node": "^18.0.6"
   }
 }
