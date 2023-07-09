@@ -30,9 +30,7 @@ const send = (reply, request, channel) => {
 			if (payload !== null) {
 				counter[payload] = counter[payload] ? counter[payload] + 1 : 1
 
-				const isAsync = Broadcast.get(channel).constructor.name === 'AsyncFunction'
 				const unserializedPayload = JSON.parse(payload)
-
 				let message = null
 
 				try {
@@ -49,6 +47,8 @@ const send = (reply, request, channel) => {
 					payload: message,
 					connection: counter[payload]
 				}
+
+				const isAsync = Broadcast.get(channel).constructor.name === 'AsyncFunction'
 
 				if (isAsync) {
 					Broadcast.get(channel).callback(broadcastMessage).then((response) => {
