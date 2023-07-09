@@ -1,3 +1,5 @@
+import { env } from '@formidablejs/framework'
+
 export default {
 
 	/**
@@ -41,10 +43,10 @@ export default {
 	 */
 
 	redis: {
-		connection: 'cache',
+		connection: env('BROADCAST_CONNECTION', 'cache'),
 		expiration: {
-			mode: 'PX',
-			ttl: 300
+			mode: env('BROADCAST_EXPIRATION_MODE', 'PX'),
+			ttl: env('BROADCAST_EXPIRATION_TTL', 300)
 		}
 	}
 
