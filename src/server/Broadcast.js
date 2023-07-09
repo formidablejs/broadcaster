@@ -60,7 +60,7 @@ module.exports = class Broadcast {
 	 * @returns {Broadcast} this
 	 */
 	middleware(middleware) {
-		if (Array.isArray(middleware) || typeof middleware == 'string') {
+		if (Array.isArray(middleware) || typeof middleware == 'string' || typeof middleware == 'function') {
 			settings.channels[this.channel].middleware = settings.channels[this.channel].middleware.concat(middleware)
 		} else {
 			throw new TypeError('Middleware must be a string or an array of strings')
