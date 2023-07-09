@@ -10,6 +10,7 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
      */
     register() {
 		const channels = Broadcast.getChannels()
+		const middleware = this.getMiddleware()
 
 		for (const channel in channels) {
 			Route.get(`/${this.getPrefix()}/${channel}`, (request, reply) => {
@@ -28,8 +29,13 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 				Route.name(channels[channel].name)
 			}
 
-			if (channels[channel].middleware) {
-				Route.middleware(channels[channel].middleware)
+			const allMiddleware = middleware.concat(channels[channel].middleware
+				? channels[channel].middleware
+				: []
+			)
+
+			if (allMiddleware.length > 0) {
+				Route.middleware(allMiddleware)
 			}
 		}
     }
@@ -43,5 +49,14 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 		const prefix = this.app.config.get('broadcasting.prefix', '_broadcast')
 
 		return prefix.replace(/\/$/, '').replace(/^\//, '')
+	}
+
+	/**
+	 * Get the middleware for the broadcast routes.
+	 *
+	 * @returns {string|import('@formidablejs/framework').IMiddleware[]}
+	 */
+	getMiddleware() {
+		return this.app.config.get('broadcasting.middleware', [])
 	}
 }
