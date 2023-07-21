@@ -1,5 +1,5 @@
 import { IMiddleware } from '@formidablejs/framework/types/Http/Middleware/IMiddleware'
-import ChannelCallback from '../ChannelCallback'
+import ChannelCallback from '../../types/ChannelCallback'
 
 export default class Broadcast {
 	/**

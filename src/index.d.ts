@@ -1,11 +1,11 @@
 import Broadcast from './server/Broadcast'
 import BroadcastServiceResolver from './server/BroadcastServiceResolver'
 import Channel from './server/Channel'
-import ChannelCallback, { ChannelMessage } from './ChannelCallback'
-import SubscribeCallback from './SubscribeCallback'
-import SubscribeOnError from './SubscribeOnError'
-import SubscribeOnReady from './SubscribeOnReady'
-import SubscriptionOptions from './SubscriptionOptions'
+import ChannelCallback, { ChannelMessage } from './../types/ChannelCallback'
+import SubscribeCallback from './../types/SubscribeCallback'
+import SubscribeOnError from './../types/SubscribeOnError'
+import SubscribeOnReady from './../types/SubscribeOnReady'
+import SubscriptionOptions from './../types/SubscriptionOptions'
 
 type BroadcastingConfig = {
 	/**
