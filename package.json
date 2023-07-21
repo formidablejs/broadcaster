@@ -8,7 +8,7 @@
   "types": "src/index.d.ts",
   "publisher": "formidable/Package.js",
   "bugs": "https://github.com/formidablejs/broadcaster/issues",
-  "homepage": "https://formidablejs.org",
+  "homepage": "https://formidablejs.org/docs/broadcasting",
   "repository": "https://github.com/formidablejs/broadcaster",
   "files": [
 	"formidable",
