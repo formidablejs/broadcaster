@@ -1,4 +1,4 @@
-import { Broadcast } from '@formidablejs/broadcaster'
+import { Broadcast } from '@formidablejs/broadcaster/src/server'
 import type { ChannelMessage } from '@formidablejs/broadcaster'
 
 /**
