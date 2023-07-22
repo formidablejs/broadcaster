@@ -6,9 +6,7 @@ const config = globalThis.BroadcastConfig || {}
  * @returns {string}
  */
 const getPrefix = () => {
-	const prefix = config.prefix || '_broadcast'
-
-	return prefix.replace(/\/$/, '').replace(/^\//, '')
+    return (config.prefix || '_broadcast').replace(/\/$/, '').replace(/^\//, '')
 }
 
 /**
@@ -17,7 +15,7 @@ const getPrefix = () => {
  * @param {string} channel
  * @param {import('../../types/SubscriptionOptions').default} options
  */
- module.exports = (channel, options) => {
+module.exports = (channel, options) => {
     let payload = null
 
     const source = new EventSource(`/${getPrefix()}/${channel}`, {
@@ -31,25 +29,25 @@ const getPrefix = () => {
         }
     }
 
-	if (options.onError && typeof options.onError === 'function') {
-		source.onerror = (e) => {
-			options.onError(e, source)
-		}
-	} else {
-		source.onerror = (e) => {
-			source.close()
+    if (options.onError && typeof options.onError === 'function') {
+        source.onerror = (e) => {
+            options.onError(e, source)
+        }
+    } else {
+        source.onerror = (e) => {
+            source.close()
 
-			throw new Error("An error occurred while establishing a connection to the server")
-		}
-	}
+            throw new Error("An error occurred while establishing a connection to the server")
+        }
+    }
 
-	if (options.onReady && typeof options.onReady === 'function') {
-		source.onopen = (e) => {
-			if (e.target.readyState == EventSource.OPEN) {
-				options.onReady(e, source)
-			}
-		}
-	}
+    if (options.onReady && typeof options.onReady === 'function') {
+        source.onopen = (e) => {
+            if (e.target.readyState == EventSource.OPEN) {
+                options.onReady(e, source)
+            }
+        }
+    }
 
     return source
 }
