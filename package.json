@@ -1,6 +1,6 @@
 {
   "name": "@formidablejs/broadcaster",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Channel Broadcaster for Formidable.",
   "author": "Donald Pakkies <donaldpakkies@gmail.com>",
   "license": "MIT",
