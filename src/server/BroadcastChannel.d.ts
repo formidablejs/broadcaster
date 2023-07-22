@@ -2,7 +2,7 @@ import { ChannelMessage } from '../../types/ChannelCallback'
 import ConnectionEvent from '../../types/ConnectionEvent'
 
 export interface IBroadcastChannel {
-    new (name: string): {
+    new(name: string): {
         publish: (message: ChannelMessage) => Promise<boolean> | boolean
     }
 }

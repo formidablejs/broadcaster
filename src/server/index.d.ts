@@ -4,8 +4,8 @@ import BroadcastServiceResolver from './BroadcastServiceResolver'
 import Channel from './Channel'
 
 export {
-	Broadcast,
+    Broadcast,
     BroadcastChannel,
-	BroadcastServiceResolver,
-	Channel
+    BroadcastServiceResolver,
+    Channel
 }

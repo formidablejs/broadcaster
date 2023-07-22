@@ -6,6 +6,6 @@ const Channel = require('./Channel')
 module.exports = {
     BroadcastServiceResolver,
     BroadcastChannel,
-	Broadcast,
+    Broadcast,
     Channel
 }

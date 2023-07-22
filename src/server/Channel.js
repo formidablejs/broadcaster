@@ -13,7 +13,7 @@ module.exports = class Channel {
             this.message = JSON.stringify({
                 payload: message,
                 timestamp: new Date().valueOf(),
-				id: crypto.randomUUID()
+                id: crypto.randomUUID()
             })
         } catch {
             throw new Error("Invalid message")
@@ -41,16 +41,16 @@ module.exports = class Channel {
             throw new TypeError("Channel must be a string")
         }
 
-		/** @type {'PX' | 'EX'} mode */
-		const mode = config('broadcasting.expiration.mode', 'PX')
+        /** @type {'PX' | 'EX'} mode */
+        const mode = config('broadcasting.expiration.mode', 'PX')
 
-		/** @type {number} ttl */
-		const ttl = config('broadcasting.expiration.ttl', 300)
+        /** @type {number} ttl */
+        const ttl = config('broadcasting.expiration.ttl', 300)
 
-		/** @type {string} db */
-		const db = config('broadcasting.expiration.connection', 'default')
+        /** @type {string} db */
+        const db = config('broadcasting.expiration.connection', 'default')
 
-		const connection = await Redis.connection(db)
+        const connection = await Redis.connection(db)
 
         await connection.set(`channel:${channel}`, this.message, {
             [mode]: ttl,

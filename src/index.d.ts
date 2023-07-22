@@ -10,32 +10,32 @@ import SubscribeOnReady from './../types/SubscribeOnReady'
 import SubscriptionOptions from './../types/SubscriptionOptions'
 
 type BroadcastingConfig = {
-	/**
-	 * Specify the prefix that will be used to prefix the channel
-	 * paths. For example, if you specify a prefix of `_broadcast`, the channel
-	 * path will be `/_broadcast/channel`.
-	 */
-	prefix: string
+    /**
+     * Specify the prefix that will be used to prefix the channel
+     * paths. For example, if you specify a prefix of `_broadcast`, the channel
+     * path will be `/_broadcast/channel`.
+     */
+    prefix: string
 }
 
 declare global {
-	interface Window {
-		BroadcastConfig: BroadcastingConfig
-	}
+    interface Window {
+        BroadcastConfig: BroadcastingConfig
+    }
 
-	var BroadcastConfig: BroadcastingConfig
+    var BroadcastConfig: BroadcastingConfig
 }
 
 export {
-	Broadcast,
+    Broadcast,
     BroadcastChannel,
-	BroadcastServiceResolver,
-	Channel,
-	ChannelCallback,
+    BroadcastServiceResolver,
+    Channel,
+    ChannelCallback,
     ConnectionEvent,
-	ChannelMessage,
-	SubscribeCallback,
-	SubscribeOnError,
-	SubscribeOnReady,
-	SubscriptionOptions
+    ChannelMessage,
+    SubscribeCallback,
+    SubscribeOnError,
+    SubscribeOnReady,
+    SubscriptionOptions
 }
