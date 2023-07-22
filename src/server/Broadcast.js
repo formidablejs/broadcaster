@@ -1,3 +1,5 @@
+const BroadcastChannel = require('./BroadcastChannel')
+
 const settings = {
 	channels: {}
 }
@@ -17,7 +19,7 @@ module.exports = class Broadcast {
 
 	/**
 	 * @param {string} channel
-	 * @param {import('../../types/ChannelCallback').default} callback
+	 * @param {import('../../types/ChannelCallback').default | import('./BroadcastChannel').IBroadcastChannel} callback
 	 */
 	static channel(channel, callback) {
 		if (typeof callback !== 'function' && typeof callback !== 'undefined') {
@@ -31,6 +33,10 @@ module.exports = class Broadcast {
 		if (typeof callback == 'undefined' || callback == null) {
 			callback = () => true
 		}
+
+        if (typeof callback == 'function' && callback.prototype instanceof BroadcastChannel) {
+            callback = new callback(channel)
+        }
 
 		settings.channels[channel] = {
 			callback,

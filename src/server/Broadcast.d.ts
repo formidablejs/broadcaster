@@ -1,4 +1,5 @@
 import { IMiddleware } from '@formidablejs/framework/types/Http/Middleware/IMiddleware'
+import { IBroadcastChannel } from './BroadcastChannel'
 import ChannelCallback from '../../types/ChannelCallback'
 
 export default class Broadcast {
@@ -15,7 +16,7 @@ export default class Broadcast {
 	/**
 	 * Define a channel.
 	 */
-	static channel(channel: string, callback?: ChannelCallback): Broadcast
+	static channel(channel: string, callback?: ChannelCallback | IBroadcastChannel): Broadcast
 
 	/**
 	 * Set the channel name.
