@@ -1,6 +1,8 @@
 const { Route, ServiceResolver } = require('@formidablejs/framework')
 const send = require('./service')
 const Broadcast = require('./Broadcast')
+const MakeChannel = require('./Commands/MakeChannel')
+const BroadcastChannel = require('./BroadcastChannel')
 
 module.exports = class BroadcastServiceResolver extends ServiceResolver {
     /**
@@ -13,7 +15,7 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 		const middleware = this.getMiddleware()
 
 		for (const channel in channels) {
-			Route.get(`/${this.getPrefix()}/${channel}`, (request, reply) => {
+			Route.get(`/${this.getPrefix()}/${channel}`, (request, /** @type {import('@formidablejs/framework').FastifyReply} */ reply) => {
 				reply.raw.writeHead(200, {
 					'Content-Type': 'text/event-stream',
 					'Cache-Control': 'no-cache',
@@ -23,6 +25,22 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 				reply.raw.write('OK\n\n')
 
 				send(reply, request, channel)
+
+                const callback = Broadcast.get(channel).callback
+
+                if (callback instanceof BroadcastChannel) {
+                    const payload = {
+                        user: request.user(),
+                        userAgent: request.hasHeader('user-agent') ? request.header('user-agent') : null,
+                        params: request.params(),
+                        query: request.query()
+                    }
+
+                    callback.subscribe({...payload, event: 'open'})
+
+                    reply.raw.on('close', () => callback.unsubscribe({...payload, event: 'close'}))
+                    reply.raw.on('error', (e) => callback.unsubscribe({...payload, event: 'error', error: e}))
+                }
 			})
 
 			if (channels[channel].name) {
@@ -38,6 +56,8 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 				Route.middleware(allMiddleware)
 			}
 		}
+
+        this.app.registerCommand(MakeChannel)
     }
 
 	/**
@@ -46,9 +66,7 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 	 * @returns {string}
 	 */
 	getPrefix() {
-		const prefix = this.app.config.get('broadcasting.prefix', '_broadcast')
-
-		return prefix.replace(/\/$/, '').replace(/^\//, '')
+		return this.app.config.get('broadcasting.prefix', '_broadcast').replace(/\/$/, '').replace(/^\//, '')
 	}
 
 	/**
