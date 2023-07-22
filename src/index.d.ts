@@ -1,7 +1,9 @@
 import Broadcast from './server/Broadcast'
+import BroadcastChannel from './server/BroadcastChannel'
 import BroadcastServiceResolver from './server/BroadcastServiceResolver'
 import Channel from './server/Channel'
 import ChannelCallback, { ChannelMessage } from './../types/ChannelCallback'
+import ConnectionEvent from './../types/ConnectionEvent'
 import SubscribeCallback from './../types/SubscribeCallback'
 import SubscribeOnError from './../types/SubscribeOnError'
 import SubscribeOnReady from './../types/SubscribeOnReady'
@@ -26,9 +28,11 @@ declare global {
 
 export {
 	Broadcast,
+    BroadcastChannel,
 	BroadcastServiceResolver,
 	Channel,
 	ChannelCallback,
+    ConnectionEvent,
 	ChannelMessage,
 	SubscribeCallback,
 	SubscribeOnError,
