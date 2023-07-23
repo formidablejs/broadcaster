@@ -39,47 +39,51 @@ const send = (reply, request, channel) => {
  * @param connection
  */
 const sendToClient = (request, reply, channel, connection) => {
-    connection.get(`channel:${request.url().slice(getPrefix().length)}`).then((payload) => {
-        if (payload !== null) {
-            counter[payload] = counter[payload] ? counter[payload] + 1 : 1
+    connection.keys(`channel:${request.url().slice(getPrefix().length)}:*`).then((keys) => {
+        keys.forEach((key) => {
+            connection.get(key).then((payload) => {
+                if (payload !== null) {
+                    counter[payload] = counter[payload] ? counter[payload] + 1 : 1
 
-            const unserializedPayload = JSON.parse(payload)
-            let message = null
+                    const unserializedPayload = JSON.parse(payload)
+                    let message = null
 
-            try {
-                message = JSON.stringify(unserializedPayload.payload)
-            } catch {
-                message = unserializedPayload.payload
-            }
+                    try {
+                        message = JSON.stringify(unserializedPayload.payload)
+                    } catch {
+                        message = unserializedPayload.payload
+                    }
 
-            const broadcastMessage = {
-                id: unserializedPayload.id,
-                user: request.user(),
-                userAgent: request.hasHeader('user-agent') ? request.header('user-agent') : null,
-                params: request.params(),
-                query: request.query(),
-                payload: message,
-                connection: counter[payload]
-            }
+                    const broadcastMessage = {
+                        id: unserializedPayload.id,
+                        user: request.user(),
+                        userAgent: request.hasHeader('user-agent') ? request.header('user-agent') : null,
+                        params: request.params(),
+                        query: request.query(),
+                        payload: message,
+                        connection: counter[payload]
+                    }
 
-            let callback = Broadcast.get(channel).callback
+                    let callback = Broadcast.get(channel).callback
 
-            callback = callback instanceof BroadcastChannel ? callback.publish : callback
+                    callback = callback instanceof BroadcastChannel ? callback.publish : callback
 
-            const isAsync = callback.constructor.name === 'AsyncFunction'
+                    const isAsync = callback.constructor.name === 'AsyncFunction'
 
-            if (isAsync) {
-                callback(broadcastMessage).then((response) => {
-                    if (response == true) {
+                    if (isAsync) {
+                        callback(broadcastMessage).then((response) => {
+                            if (response == true) {
+                                reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
+                            }
+                        })
+                    } else if (callback(broadcastMessage)) {
                         reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
                     }
-                })
-            } else if (callback(broadcastMessage)) {
-                reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
-            }
 
-            setTimeout(() => cleanUp(), 5000)
-        }
+                    setTimeout(() => cleanUp(), 5000)
+                }
+            })
+        })
     })
 }
 
