@@ -10,10 +10,12 @@ module.exports = class Channel {
      */
     constructor(message) {
         try {
+            this.id = crypto.randomUUID()
+
             this.message = JSON.stringify({
                 payload: message,
                 timestamp: new Date().valueOf(),
-                id: crypto.randomUUID()
+                id: this.id
             })
         } catch {
             throw new Error("Invalid message")
@@ -52,7 +54,7 @@ module.exports = class Channel {
 
         const connection = await Redis.connection(db)
 
-        await connection.set(`channel:${channel}`, this.message, {
+        await connection.set(`channel:${channel}:${this.id}`, this.message, {
             [mode]: ttl,
         })
 
