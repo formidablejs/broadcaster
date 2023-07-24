@@ -44,6 +44,7 @@ const getPublishMode = () => {
  * @param {import("@formidablejs/framework").FastifyReply} reply
  * @param {import("@formidablejs/framework").Request} request
  * @param {string} channel
+ * @returns {Promise<NodeJS.Timer>}
  */
 const send = async (reply, request, channel) => {
     const refreshRate = getRefreshRate();
