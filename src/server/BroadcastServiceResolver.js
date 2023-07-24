@@ -56,6 +56,8 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
                     })
 
                     reply.raw.on('error', (e) => callback.unsubscribe({ ...payload, event: 'error', error: e }))
+                } else {
+                    reply.raw.on('close', () => timer.then((interval) => clearInterval(interval)))
                 }
             })
 
