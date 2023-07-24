@@ -24,7 +24,7 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 
                 reply.raw.write('OK\n\n')
 
-                send(reply, request, channel)
+                const timer = send(reply, request, channel)
 
                 const callback = Broadcast.get(channel).callback
 
@@ -38,7 +38,11 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 
                     callback.subscribe({ ...payload, event: 'open' })
 
-                    reply.raw.on('close', () => callback.unsubscribe({ ...payload, event: 'close' }))
+                    reply.raw.on('close', () => {
+                        callback.unsubscribe({ ...payload, event: 'close' })
+
+                        timer.then((interval) => clearInterval(interval))
+                    })
                     reply.raw.on('error', (e) => callback.unsubscribe({ ...payload, event: 'error', error: e }))
                 }
             })

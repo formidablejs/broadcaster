@@ -45,14 +45,21 @@ const getPublishMode = () => {
  * @param {import("@formidablejs/framework").Request} request
  * @param {string} channel
  */
-const send = (reply, request, channel) => {
-    Redis.connection(config('broadcasting.expiration.connection', 'default'))
-        .then((connection) => persist(request, reply, channel, connection))
-        .catch((e) => {
-            if (e.message && e.message !== 'Socket already opened') throw e
-        })
+const send = async (reply, request, channel) => {
+    const refreshRate = getRefreshRate();
+    const connection = await Redis.connection(config('broadcasting.expiration.connection', 'default'));
 
-    setTimeout(() => send(reply, request, channel), getRefreshRate())
+    const interval = setInterval(async () => {
+        try {
+            await persist(request, reply, channel, connection);
+        } catch (e) {
+            if (e.message && e.message !== 'Socket already opened') {
+                throw e
+            }
+        }
+    }, refreshRate);
+
+    return interval
 }
 
 /**
@@ -63,17 +70,21 @@ const send = (reply, request, channel) => {
  * @param {string} channel
  * @param connection
  */
-const persist = (request, reply, channel, connection) => {
-    if (getPublishMode() === 'append') {
-        connection.keys(`channel:${request.url().slice(getPrefix().length)}:*`).then((keys) => {
-            keys.forEach((key) => {
-                connection.get(key).then((payload) => sendToClient(payload, request, reply, channel))
-            })
-        })
+const persist = async (request, reply, channel, connection) => {
+    const prefix = getPrefix();
+    const urlSlice = request.url().slice(prefix.length);
+    const publishMode = getPublishMode();
+    const channelKey = `channel:${urlSlice}`;
+
+    if (publishMode === 'append') {
+        const keys = await connection.keys(`${channelKey}:*`);
+        const payloads = await Promise.all(keys.map((key) => connection.get(key)));
+        for (const payload of payloads) {
+            sendToClient(payload, request, reply, channel);
+        }
     } else {
-        connection.get(`channel:${request.url().slice(getPrefix().length)}`).then((payload) => {
-            sendToClient(payload, request, reply, channel)
-        })
+        const payload = await connection.get(channelKey);
+        sendToClient(payload, request, reply, channel);
     }
 }
 
