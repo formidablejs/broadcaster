@@ -22,10 +22,21 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
                     'Connection': 'keep-alive',
                 })
 
+                /** Let the client know that the connection is established. */
                 reply.raw.write('OK\n\n')
 
-                send(reply, request, channel)
+                /**
+                 * Send all messages from Redis to the client in real-time.
+                 *
+                 * @type {Promise<NodeJS.Timer>}
+                 */
+                const timer = send(reply, request, channel)
 
+                /**
+                 * Get the callback for the channel.
+                 *
+                 * @type {import('../../types/ChannelCallback').default | import('./BroadcastChannel').IBroadcastChannel}
+                 */
                 const callback = Broadcast.get(channel).callback
 
                 if (callback instanceof BroadcastChannel) {
@@ -38,8 +49,15 @@ module.exports = class BroadcastServiceResolver extends ServiceResolver {
 
                     callback.subscribe({ ...payload, event: 'open' })
 
-                    reply.raw.on('close', () => callback.unsubscribe({ ...payload, event: 'close' }))
+                    reply.raw.on('close', () => {
+                        callback.unsubscribe({ ...payload, event: 'close' })
+
+                        timer.then((interval) => clearInterval(interval))
+                    })
+
                     reply.raw.on('error', (e) => callback.unsubscribe({ ...payload, event: 'error', error: e }))
+                } else {
+                    reply.raw.on('close', () => timer.then((interval) => clearInterval(interval)))
                 }
             })
 

@@ -14,77 +14,130 @@ const getPrefix = () => {
 }
 
 /**
+ * Get the refresh rate.
+ *
+ * @returns {number}
+ */
+const getRefreshRate = () => {
+    return config('broadcasting.redis.refresh_rate', 100) ?? 100
+}
+
+/**
+ * Get the publish mode.
+ *
+ * @returns {'append' | 'overwrite'}
+ * @throws {Error}
+ */
+const getPublishMode = () => {
+    const mode = config('broadcasting.redis.publish_mode', 'append') ?? 'append'
+
+    if (!['append', 'overwrite'].includes(mode.toLowerCase())) {
+        throw new Error("Invalid publish mode. Expected 'append' or 'overwrite'")
+    }
+
+    return mode.toLowerCase()
+}
+
+/**
  * Send event.
  *
  * @param {import("@formidablejs/framework").FastifyReply} reply
  * @param {import("@formidablejs/framework").Request} request
  * @param {string} channel
+ * @returns {Promise<NodeJS.Timer>}
  */
-const send = (reply, request, channel) => {
-    Redis.connection(config('broadcasting.expiration.connection', 'default'))
-        .then((connection) => sendToClient(request, reply, channel, connection))
-        .catch((e) => {
-            if (e.message && e.message !== 'Socket already opened') throw e
-        })
+const send = async (reply, request, channel) => {
+    const refreshRate = getRefreshRate();
+    const connection = await Redis.connection(config('broadcasting.expiration.connection', 'default'));
 
-    setTimeout(() => send(reply, request, channel), 100)
+    const interval = setInterval(async () => {
+        try {
+            await persist(request, reply, channel, connection);
+        } catch (e) {
+            if (e.message && e.message !== 'Socket already opened') {
+                throw e
+            }
+        }
+    }, refreshRate);
+
+    return interval
 }
 
 /**
- * Send the event to the client.
+ * Get messages from Redis.
  *
  * @param {import("@formidablejs/framework").Request} request
  * @param {import("@formidablejs/framework").FastifyReply} reply
  * @param {string} channel
  * @param connection
  */
-const sendToClient = (request, reply, channel, connection) => {
-    connection.keys(`channel:${request.url().slice(getPrefix().length)}:*`).then((keys) => {
-        keys.forEach((key) => {
-            connection.get(key).then((payload) => {
-                if (payload !== null) {
-                    counter[payload] = counter[payload] ? counter[payload] + 1 : 1
+const persist = async (request, reply, channel, connection) => {
+    const prefix = getPrefix();
+    const urlSlice = request.url().slice(prefix.length);
+    const publishMode = getPublishMode();
+    const channelKey = `channel:${urlSlice}`;
 
-                    const unserializedPayload = JSON.parse(payload)
-                    let message = null
+    if (publishMode === 'append') {
+        const keys = await connection.keys(`${channelKey}:*`);
+        const payloads = await Promise.all(keys.map((key) => connection.get(key)));
+        for (const payload of payloads) {
+            sendToClient(payload, request, reply, channel);
+        }
+    } else {
+        const payload = await connection.get(channelKey);
+        sendToClient(payload, request, reply, channel);
+    }
+}
 
-                    try {
-                        message = JSON.stringify(unserializedPayload.payload)
-                    } catch {
-                        message = unserializedPayload.payload
-                    }
+/**
+ * Send the event to the client.
+ *
+ * @param {string} payload
+ * @param {import("@formidablejs/framework").Request} request
+ * @param {import("@formidablejs/framework").FastifyReply} reply
+ * @param {string} channel
+ */
+const sendToClient = (payload, request, reply, channel) => {
+    if (payload !== null) {
+        counter[payload] = counter[payload] ? counter[payload] + 1 : 1
 
-                    const broadcastMessage = {
-                        id: unserializedPayload.id,
-                        user: request.user(),
-                        userAgent: request.hasHeader('user-agent') ? request.header('user-agent') : null,
-                        params: request.params(),
-                        query: request.query(),
-                        payload: message,
-                        connection: counter[payload]
-                    }
+        const unserializedPayload = JSON.parse(payload)
+        let message = null
 
-                    let callback = Broadcast.get(channel).callback
+        try {
+            message = JSON.stringify(unserializedPayload.payload)
+        } catch {
+            message = unserializedPayload.payload
+        }
 
-                    callback = callback instanceof BroadcastChannel ? callback.publish : callback
+        const broadcastMessage = {
+            id: unserializedPayload.id,
+            user: request.user(),
+            userAgent: request.hasHeader('user-agent') ? request.header('user-agent') : null,
+            params: request.params(),
+            query: request.query(),
+            payload: message,
+            connection: counter[payload]
+        }
 
-                    const isAsync = callback.constructor.name === 'AsyncFunction'
+        let callback = Broadcast.get(channel).callback
 
-                    if (isAsync) {
-                        callback(broadcastMessage).then((response) => {
-                            if (response == true) {
-                                reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
-                            }
-                        })
-                    } else if (callback(broadcastMessage)) {
-                        reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
-                    }
+        callback = callback instanceof BroadcastChannel ? callback.publish : callback
 
-                    setTimeout(() => cleanUp(), 5000)
+        const isAsync = callback.constructor.name === 'AsyncFunction'
+
+        if (isAsync) {
+            callback(broadcastMessage).then((response) => {
+                if (response == true) {
+                    reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
                 }
             })
-        })
-    })
+        } else if (callback(broadcastMessage)) {
+            reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
+        }
+
+        setTimeout(() => cleanUp(), 5000)
+    }
 }
 
 /**

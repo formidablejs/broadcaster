@@ -43,6 +43,14 @@ module.exports = class Channel {
             throw new TypeError("Channel must be a string")
         }
 
+        if (!['PX', 'EX'].includes(config('broadcasting.expiration.mode', 'PX').toUpperCase())) {
+            throw new Error("Invalid expiration mode. Expected 'PX' or 'EX'")
+        }
+
+        if (!['append', 'overwrite'].includes(config('broadcasting.redis.publish_mode', 'append').toLowerCase())) {
+            throw new Error("Invalid publish mode. Expected 'append' or 'overwrite'")
+        }
+
         /** @type {'PX' | 'EX'} mode */
         const mode = config('broadcasting.expiration.mode', 'PX')
 
@@ -52,10 +60,14 @@ module.exports = class Channel {
         /** @type {string} db */
         const db = config('broadcasting.expiration.connection', 'default')
 
+        /** @type {Redis} */
         const connection = await Redis.connection(db)
 
-        await connection.set(`channel:${channel}:${this.id}`, this.message, {
-            [mode]: ttl,
+        /** @type {string} */
+        const key = `channel:${channel}` + (config('broadcasting.redis.publish_mode') === 'append' ? `:${this.id}` : '')
+
+        await connection.set(key, this.message, {
+            [mode.toUpperCase()]: ttl,
         })
 
         return true
