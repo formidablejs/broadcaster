@@ -55,7 +55,7 @@ module.exports = class Channel {
         const mode = config('broadcasting.redis.expiration.mode', 'PX')
 
         /** @type {number} ttl */
-        const ttl = config('broadcasting.redis.expiration.ttl', 300)
+        const ttl = config('broadcasting.redis.expiration.ttl', 1000)
 
         /** @type {string} db */
         const db = config('broadcasting.redis.connection', 'default')
