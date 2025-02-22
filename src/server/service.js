@@ -48,7 +48,7 @@ const getPublishMode = () => {
  */
 const send = async (reply, request, channel) => {
     const refreshRate = getRefreshRate();
-    const connection = await Redis.connection(config('broadcasting.expiration.connection', 'default'));
+    const connection = await Redis.connection(config('broadcasting.redis.connection', 'default'));
 
     const interval = setInterval(async () => {
         try {
@@ -136,7 +136,7 @@ const sendToClient = (payload, request, reply, channel) => {
             reply.raw.write(`id: ${unserializedPayload.id}\ndata: ${payload}\n\n`)
         }
 
-        setTimeout(() => cleanUp(), 5000)
+        setTimeout(() => cleanUp(), 1000)
     }
 }
 
