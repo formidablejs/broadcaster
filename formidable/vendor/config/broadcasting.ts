@@ -1,5 +1,3 @@
-import { env } from '@formidablejs/framework'
-
 export default {
 
     /**
@@ -40,9 +38,6 @@ export default {
      * indicate whether the value should be overwritten (`overwrite`) or
      * appended (`append`) to the existing channel.
      *
-     * Note: The `append` mode is very slow and should only be used when
-     * absolutely necessary.
-     *
      * The `refresh_rate` option may be any integer value. This value is used
      * to determine how often the channel should be refreshed. The default
      * value is `100` milliseconds.
@@ -59,7 +54,7 @@ export default {
         refresh_rate: env('BROADCAST_REFRESH_RATE', 100),
         expiration: {
             mode: env('BROADCAST_EXPIRATION_MODE', 'PX'),
-            ttl: env('BROADCAST_EXPIRATION_TTL', 300)
+            ttl: env('BROADCAST_EXPIRATION_TTL', 1000)
         }
     }
 

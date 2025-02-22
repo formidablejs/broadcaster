@@ -43,7 +43,7 @@ module.exports = class Channel {
             throw new TypeError("Channel must be a string")
         }
 
-        if (!['PX', 'EX'].includes(config('broadcasting.expiration.mode', 'PX').toUpperCase())) {
+        if (!['PX', 'EX'].includes(config('broadcasting.redis.expiration.mode', 'PX').toUpperCase())) {
             throw new Error("Invalid expiration mode. Expected 'PX' or 'EX'")
         }
 
@@ -52,13 +52,13 @@ module.exports = class Channel {
         }
 
         /** @type {'PX' | 'EX'} mode */
-        const mode = config('broadcasting.expiration.mode', 'PX')
+        const mode = config('broadcasting.redis.expiration.mode', 'PX')
 
         /** @type {number} ttl */
-        const ttl = config('broadcasting.expiration.ttl', 300)
+        const ttl = config('broadcasting.redis.expiration.ttl', 1000)
 
         /** @type {string} db */
-        const db = config('broadcasting.expiration.connection', 'default')
+        const db = config('broadcasting.redis.connection', 'default')
 
         /** @type {Redis} */
         const connection = await Redis.connection(db)
@@ -66,10 +66,10 @@ module.exports = class Channel {
         /** @type {string} */
         const key = `channel:${channel}` + (config('broadcasting.redis.publish_mode') === 'append' ? `:${this.id}` : '')
 
-        await connection.set(key, this.message, {
+        const response = await connection.set(key, this.message, {
             [mode.toUpperCase()]: ttl,
         })
 
-        return true
+        return response === 'OK'
     }
 }
