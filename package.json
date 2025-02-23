@@ -24,9 +24,14 @@
     }
   },
   "publisher": "formidable/Package.js",
-  "bugs": "https://github.com/formidablejs/broadcaster/issues",
+  "bugs": {
+    "url": "https://github.com/formidablejs/broadcaster/issues"
+  },
   "homepage": "https://formidablejs.org/docs/broadcasting",
-  "repository": "https://github.com/formidablejs/broadcaster",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formidablejs/broadcaster.git"
+  },
   "files": [
     "formidable",
     "src",
