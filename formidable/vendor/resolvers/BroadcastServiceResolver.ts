@@ -1,4 +1,4 @@
-import { BroadcastServiceResolver as ServiceResolver } from '@formidablejs/broadcaster/src/server'
+import { BroadcastServiceResolver as ServiceResolver } from '@formidablejs/broadcaster'
 
 export class BroadcastServiceResolver extends ServiceResolver {
 	/**
