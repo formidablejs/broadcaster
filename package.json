@@ -4,16 +4,33 @@
   "description": "Channel Broadcaster for Formidable.",
   "author": "Donald Pakkies <donaldpakkies@gmail.com>",
   "license": "MIT",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "src/server/index.js",
+  "types": "src/server/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./src/server/index.js",
+      "require": "./src/server/index.js",
+      "types": "./src/server/index.d.ts"
+    },
+    "./server": {
+      "import": "./src/server/index.js",
+      "require": "./src/server/index.js",
+      "types": "./src/server/index.d.ts"
+    },
+    "./client": {
+      "import": "./src/client/index.js",
+      "require": "./src/client/index.js",
+      "types": "./src/client/index.d.ts"
+    }
+  },
   "publisher": "formidable/Package.js",
   "bugs": "https://github.com/formidablejs/broadcaster/issues",
   "homepage": "https://formidablejs.org/docs/broadcasting",
   "repository": "https://github.com/formidablejs/broadcaster",
   "files": [
-	"formidable",
+    "formidable",
     "src",
-	"types"
+    "types"
   ],
   "peerDependencies": {
     "@formidablejs/framework": ">=0.21.0"
